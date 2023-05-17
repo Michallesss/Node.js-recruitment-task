@@ -1,0 +1,43 @@
+{
+  "name": "nodeapi",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.ts",
+  "scripts": {
+    "test": "nodemon app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PraktykanciImoli/NodeAPI.git"
+  },
+  "keywords": [
+    "nodejs",
+    "api",
+    "express",
+    "typescript",
+    "postgresql"
+  ],
+  "author": "Michał, Aleksy, Dominik, Mikołaj",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PraktykanciImoli/NodeAPI/issues"
+  },
+  "homepage": "https://github.com/PraktykanciImoli/NodeAPI#readme",
+  "dependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.1.7",
+    "@types/pg": "^8.6.6",
+    "axios": "^1.4.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "helmet": "^7.0.0",
+    "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "nodemon": "^2.0.22",
+    "prettier": "^2.8.8",
+    "ts-node": "^10.9.1"
+  }
+}
