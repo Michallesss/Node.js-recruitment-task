@@ -19,6 +19,7 @@ const client=new Client({
     database: DB_DATABASE,
 });
 client.connect();
+export default client;
 
 // Config 
 app.use(express.json());
