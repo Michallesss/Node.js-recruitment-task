@@ -45,53 +45,73 @@ router.get('/', async (_req: Request, _res: Response) => { // TODO: make it work
     });
 });
 
-// router.get('/:id', (_req: Request, _res: Response) => {});
+router.get('/:id', async (_req: Request, _res: Response) => {
+    const [ favoritesResult, favoritesError ]: any=await client.query(`SELECT *, '' as characters FROM favorites WHERE id=${_req.params.id}`)
+    .then((res) => [res.rows, null])
+    .catch((err) => [null, err]);
+    if(favoritesError) return _res.status(500).json({
+        "status":"error",
+        "message":"500 internal server error",
+    });
+    if(!favoritesResult) return _res.status(404).json({
+        "status":"error",
+        "message":"404 not found",
+    });
 
-// router.get('/:id/file ', (_req: Request, _res: Response) => {});
+    const [ charactersResult, charactersError ]: any=await client.query(`SELECT characters.link FROM characters JOIN characters_favorites ON characters_favorites.characters_id=characters.id JOIN favorites ON favorites.id=characters_favorites.favorites_id WHERE favorites.id=${_req.params.id}`)
+    .then((res) => [res.rows, null])
+    .catch((err) => [null, err]);
+    if(charactersError) return _res.status(500).json({
+        "status":"error",
+        "message":"500 internal server error",
+    });
+    if(!charactersResult) return _res.status(404).json({
+        "status":"error",
+        "message":"404 not found",
+    });
+
+    return _res.status(200).json({
+        status: "success",
+        message: "mamy to",
+        data: {
+            film: favoritesResult,
+            characters: charactersResult,
+        },
+    });
+});
+
+router.get('/:id/file ', async (_req: Request, _res: Response) => {
+    const [ favoritesResult, favoritesError ]: any=await client.query(`SELECT *, '' as characters FROM favorites WHERE id=${_req.params.id}`)
+    .then((res) => [res.rows, null])
+    .catch((err) => [null, err]);
+    if(favoritesError) return _res.status(500).json({
+        "status":"error",
+        "message":"500 internal server error",
+    });
+    if(!favoritesResult) return _res.status(404).json({
+        "status":"error",
+        "message":"404 not found",
+    });
+
+    const [ charactersResult, charactersError ]: any=await client.query(`SELECT characters.link FROM characters JOIN characters_favorites ON characters_favorites.characters_id=characters.id JOIN favorites ON favorites.id=characters_favorites.favorites_id WHERE favorites.id=${_req.params.id}`)
+    .then((res) => [res.rows, null])
+    .catch((err) => [null, err]);
+    if(charactersError) return _res.status(500).json({
+        "status":"error",
+        "message":"500 internal server error",
+    });
+    if(!charactersResult) return _res.status(404).json({
+        "status":"error",
+        "message":"404 not found",
+    });
+
+    // TODO: make it excel file
+});
 
 router.post('/', async (_req: Request, _res: Response) => 
 {
-    const body: string | number = _req.body.query;
-    try
-    {
-        let result: AxiosResponse | any = await axios.get(`https://swapi.dev/api/films/${body}`);
-        result = result.data;
-        let data: [number, string, string] = [result.episode_id,result.title,result.release_date];
-        let query = await client.query(`SELECT id FROM favorites where id = (${body}::int) or title = (${body}::varchar)`).then(res => res.rows[0]);
-        if(!query)
-        {
-            console.log(1)
-            client.query(`insert into favorites("id", "title", "releaseDate") values(${data[0]}, "${data[1]}", "${data[2]}")`)
-            console.log(2)
-            _res.status(200).json({
-                status: "success",
-                query: body,
-                result: data});
-            console.log(3)
-        }
-        else
-        {
-            _res.status(400).json({
-                status: "error",
-                message: "bad request",
-                query: body
-            });
-        }
-    }
-    catch(err)
-    {
-        _res.status(404).json({
-            status: "error",
-            message: "bad request",
-            query: body
-        });
-    }
+    const value: string | number=await _req.body.id || _req.body.movie;
+    const film: AxiosResponse=await axios.get(`https://swapi.dev/api/films/${value}`);
+    
+    // ...
 });
-
-// Kozak brachu😎😎
-//       /|\        
-//      / | \       
-//     /  |  \      
-//    /   |   \     
-//   /""""|""""\    
-//  /     |     \   
