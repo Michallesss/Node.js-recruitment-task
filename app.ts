@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 import helmet from 'helmet';
 import limiter from './middlewares/limiter.middleware';
+import films from './routes/films.routes';
+import favorites from './routes/favorites.routes';
 
 const port: any = process.env.PORT || 3000;
 app.listen(port, (): void => console.info('\x1b[32m','API host listening','\x1b[0m',`(on port ${port})...`))
@@ -19,7 +21,6 @@ const client=new Client({
     database: DB_DATABASE,
 });
 client.connect();
-export default client;
 
 // Config 
 app.use(express.json());
@@ -27,10 +28,8 @@ app.use(helmet());
 app.use('/', limiter)
 
 // Routing
-import films from './routes/films.routes';
 app.use('/films', films);
 
-import favorites from './routes/favorites.routes';
 app.use('/favorites', favorites);
 
 // ***Error handler***
@@ -38,3 +37,8 @@ app.use('/favorites', favorites);
 // app.use();
 // *500
 // app.use();
+
+export {
+    client,
+    app
+}
