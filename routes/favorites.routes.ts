@@ -105,7 +105,7 @@ router.get('/:id', async (_req: Request, _res: Response) => {
     }
 });
 
-router.get('/:id/file ', async (_req: Request, _res: Response) => {
+router.get('/:id/file', async (_req: Request, _res: Response) => {
     try {
         const [ favoritesResult, favoritesError ]: any=await client.query(`SELECT * FROM favorites WHERE id=${_req.params.id}`)
         .then((res) => [res.rows, null])
@@ -140,12 +140,12 @@ router.get('/:id/file ', async (_req: Request, _res: Response) => {
         const workBook=xlsx.utils.book_new();
 
         xlsx.utils.book_append_sheet(workBook,worksheet,'favorites');
-        xlsx.write(workBook, {
+        const buffer = await xlsx.write(workBook, {
             bookType:'xlsx',
             type:'buffer'
         });
 
-        xlsx.write(workBook, {
+        const binary = await xlsx.write(workBook, {
             bookType:'xlsx',
             type:'binary'
         });
@@ -163,7 +163,8 @@ router.get('/:id/file ', async (_req: Request, _res: Response) => {
             message: "Internal server error 500",
         });
     }
-}); 
+});
+
 
 router.post('/', async (_req: Request, _res: Response) => {
     const value: string | number = _req.body.query;
