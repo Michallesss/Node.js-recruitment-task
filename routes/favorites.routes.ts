@@ -7,7 +7,7 @@ import { client } from '../app';
 import xlsx from 'xlsx';
 
 
-router.get('/', async (_req: Request, _res: Response) => { // TODO: make it works
+router.get('/', async (_req: Request, _res: Response) => {
     try {
         let [favoritesResult, favoritesError]: any=await client.query(`SELECT *, '' as characters FROM favorites`)
         .then((res: QueryResult) => [res.rows, null])
@@ -20,25 +20,6 @@ router.get('/', async (_req: Request, _res: Response) => { // TODO: make it work
             status:"error",
             message:"404 not found",
         });
-        
-        // await favoritesResult.forEach(async (fav: any, index: number) => {
-        //     const [charactersResult, charactersError]: any=await client.query(`SELECT characters.link FROM characters JOIN characters_favorites ON characters_favorites.characters_id=characters.id JOIN favorites ON favorites.id=characters_favorites.favorites_id WHERE favorites.id=${fav.id}`)
-        //     .then((res: QueryResult) => [res.rows, null])
-        //     .catch((err: Error) => [null, err]);
-        //     if(charactersError) return _res.status(500).json({
-        //         status:"error",
-        //         message:"500 internal server error",
-        //     });
-        //     if(!charactersResult) return _res.status(404).json({
-        //         status:"error",
-        //         message:"404 not found",
-        //     });
-    
-        //     fav['characters']=await charactersResult; // ! DOESN'T UPDATEEEE 
-        //     // favoritesResult[index]['characters']=charactersResult; // ? WHY IT DOESN'T UPDATE
-        //     // await console.log(fav); // * test lol
-        // });
-        
         
         const updatedFavoritesResult = [];
         for (const fav of favoritesResult) {
@@ -220,17 +201,3 @@ router.post('/', async (_req: Request, _res: Response) => {
         });
     }
 });
-
-client.query(`delete from characters where 1=1;`);
-
-const sexxo = async() =>
-{
-    let response = await axios.get('https://swapi.dev/api/people');
-    let i = 1;
-    for(let x of response.data.results)
-    {
-        client.query(`insert into characters("id", "link") values(${i}, '${x.url}');`)
-        i++;
-    }
-}
-sexxo();
