@@ -2,7 +2,7 @@ import express, {Request, Response, NextFunction} from 'express';
 const router=express.Router();
 export default router;
 import axios, { AxiosResponse } from 'axios';
-import Film from '../interfaces/interfaces'
+import Film from '../interfaces/interfaces';
 
 router.get('/', async (_req: Request, _res: Response) => {
     try {
