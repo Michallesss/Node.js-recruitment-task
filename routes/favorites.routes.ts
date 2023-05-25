@@ -167,38 +167,50 @@ router.get('/:id/file', async (_req: Request, _res: Response) => {
 
 
 router.post('/', async (_req: Request, _res: Response) => {
-    const value: string | number = _req.body.query;
-    try
-    {
+    try { 
+        const value: any = _req.body.value;
         let result: AxiosResponse | any;
-        typeof(_req.body.query) === 'string' ? result = await axios.get(`https://swapi.dev/api/films?search=${value}`) : result = await axios.get(`https://swapi.dev/api/films/${value}`);
-        typeof(_req.body.query) === 'string' ? result = result.data.results[0] : result = result.data;
-        let data: [number, string, string] = [result.episode_id,result.title,result.release_date];
-        let query = await client.query(`SELECT id FROM favorites where id = (${data[0]}::int)`).then(res => res.rows[0]);
-        if(query === undefined)
-        {
-            client.query(`insert into favorites("id", "title", "releaseDate") values(${data[0]}, '${data[1]}', '${data[2]}');`)
-            _res.status(200).json({
-                status: "success | list was sent to the database",
-                query: value,
-                result: data
+        if(typeof value==='string') {
+            const temp=await axios.get(`https://swapi.dev/api/films?search=${value}`);
+            result=temp.data.results[0];
+        } 
+        else if(typeof value==='number') {
+            const temp=await axios.get(`https://swapi.dev/api/films/${value}`);
+            result=temp.data;
+        }
+        else return _res.status(400).json({
+            status: "success",
+            message: "bad request (body value must be string or number)"
+        });
+
+        const favoritesSelect=await client.query(`SELECT id FROM favorites WHERE id='${value}' OR title='${value}'`)
+        .then((res) => res.rowCount);
+        if(favoritesSelect<=0) {
+            await client.query(`INSERT INTO favorites("id", "title", "releaseDate") VALUES (${result.episode_id}, '${result.title}', '${result.release_date}')`)
+            await result.characters.forEach(async (character: any) => {
+                const character_id=await character.split('/')[character.split('/').length-2];
+                const charactersSelect=await client.query(`SELECT id FROM characters WHERE id=${character_id}`).then((res) => res.rowCount);
+                if(charactersSelect<=0) {
+                    await client.query(`INSERT INTO characters("id","link") VALUES (${character_id},${character})`);
+                    await client.query(`INSERT INTO characters_favorites("favorites_id","characters_id") VALUES (${result.episode_id},${character_id})`);
+                }
+            });
+
+            return _res.status(200).json({
+                status: 'success',
+                message: 'Saved to db'
+            });
+        } else {
+            return _res.status(400).json({
+                status: 'error',
+                message: 'Film already exist in your favorites'
             });
         }
-        else
-        {
-            _res.status(400).json({
-                status: "error",
-                message: "bad request | list already in the database",
-                query: value
-            });
-        }
-    }
-    catch(err)
-    {
-        console.error(err)
+    } catch(error) {
+        console.error(error)
         _res.status(404).json({
             status: "error",
-            message: "not found | list does not exists",
+            message: "Internal server error 500",
         });
     }
 });
